@@ -43,10 +43,11 @@ displayName="${mod_name}" #mandatory
 
 # The authors of the mod, displayed in the mod UI (optional)
 #authors=""
+authors="BlackCat200"
 
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-Example mod description.
+A Rift_Of_Souls mod in which you obtain a unique item capable of creating spatial rifts using Sculk. By BlackCat200.
 '''
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
