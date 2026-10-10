@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "riftofsouls:azurite_block",
+    "riftofsouls:azurite_ore",
+    "riftofsouls:azurite_deepslate_ore"
+  ]
+}

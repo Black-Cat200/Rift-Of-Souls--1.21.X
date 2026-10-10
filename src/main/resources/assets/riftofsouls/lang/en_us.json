@@ -1,0 +1,18 @@
+{
+  "item.riftofsouls.azurite": "Azurite",
+  "item.riftofsouls.raw_azurite": "Raw azurite",
+  "item.riftofsouls.chisel": "Chisel",
+
+  "entity.riftofsouls.player_clone": "Clone Player",
+
+  "block.riftofsouls.azurite_block": "Block of Azurite",
+  "block.riftofsouls.azurite_ore": "Azurite Ore",
+  "block.riftofsouls.azurite_deepslate_ore": "Azurite Deepslate Ore",
+
+  "block.riftofsouls.magic_block": "Magic Block",
+
+  "creativetab.riftofsouls.azurite_items": "Azurite Items",
+  "creativetab.riftofsouls.azurite_blocks": "Azurite Blocks",
+  "creativetab.riftofsouls.rift_of_souls": "Rift Of Souls"
+}
+

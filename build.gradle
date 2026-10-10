@@ -27,6 +27,10 @@ sourceSets.main.resources {
 }
 
 repositories {
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+    }
     // Add here additional repositories if required by some of the dependencies below.
 }
 
@@ -116,6 +120,7 @@ configurations {
 }
 
 dependencies {
+    implementation files('libs/playeranimator-2.0.4+1.21.1-forge.jar')
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
