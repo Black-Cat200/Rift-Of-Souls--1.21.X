@@ -1,9 +1,5 @@
 package net.BlackCat200.Rift_Of_Souls.init;
 import net.BlackCat200.Rift_Of_Souls.RiftOfSoulsMod;
-import net.BlackCat200.Rift_Of_Souls.entity.PlayerCloneEntity;
-import net.BlackCat200.Rift_Of_Souls.client.renderer.PlayerCloneRenderer;
-import net.BlackCat200.Rift_Of_Souls.client.renderer.PlayerCloneRenderer;
-import net.BlackCat200.Rift_Of_Souls.entity.PlayerCloneEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -17,7 +13,7 @@ import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-@EventBusSubscriber(modid = RiftOfSoulsMod.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = RiftOfSoulsMod.MODID)
 public class ModEntities {
 
     public static final DeferredRegister<EntityType<?>> ENTITIES =
@@ -40,11 +36,15 @@ public class ModEntities {
     }
 
     // Регистрация рендерера (сработает только на стороне клиента)
-    @EventBusSubscriber(modid = RiftOfSoulsMod.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+    @EventBusSubscriber(modid = RiftOfSoulsMod.MODID, value = Dist.CLIENT)
     public static class ClientEvents {
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
             event.registerEntityRenderer(PLAYER_CLONE.get(), net.BlackCat200.Rift_Of_Souls.client.renderer.PlayerCloneRenderer::new);
+
+
         }
+
     }
+
 }

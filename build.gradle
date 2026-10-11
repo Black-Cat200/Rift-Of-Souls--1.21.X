@@ -27,12 +27,9 @@ sourceSets.main.resources {
 }
 
 repositories {
-    maven {
-        name = "Modrinth"
-        url = "https://api.modrinth.com/maven"
-    }
-    // Add here additional repositories if required by some of the dependencies below.
+    maven { name "KosmX's maven"; url 'https://kosmx.dev' }
 }
+
 
 base {
     archivesName = mod_id
@@ -120,8 +117,9 @@ configurations {
 }
 
 dependencies {
-    implementation files('libs/playeranimator-2.0.4+1.21.1-forge.jar')
-    // Example optional mod dependency with JEI
+    // Подключаем playerAnimator (фордж-версия отлично работает на NeoForge)
+    implementation "dev.kosmx.player-anim:player-animation-lib-forge:1.0.2-rc1+1.21"
+    // Примечание: версию (например, 1.0.2-rc1+1.21) можно уточнить на Modrinth/GitHub автора
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
     // compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"

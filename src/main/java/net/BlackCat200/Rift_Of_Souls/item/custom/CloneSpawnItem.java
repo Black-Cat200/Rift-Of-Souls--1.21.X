@@ -19,14 +19,14 @@ public class CloneSpawnItem extends Item {
         if (player != null && !context.getLevel().isClientSide() && context.getLevel() instanceof ServerLevel serverLevel) {
 
             PlayerCloneEntity clone = new PlayerCloneEntity(ModEntities.PLAYER_CLONE.get(), serverLevel);
-
             clone.moveTo(context.getClickedPos().getX() + 0.5, context.getClickedPos().getY() + 1.0, context.getClickedPos().getZ() + 0.5, player.getYRot() + 180F, 0);
             clone.setPlayerProfile(player.getGameProfile());
 
             serverLevel.addFreshEntity(clone);
-
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;
     }
+
+
 }

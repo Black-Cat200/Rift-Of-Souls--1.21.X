@@ -2,7 +2,6 @@ package net.BlackCat200.Rift_Of_Souls.entity;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -25,30 +24,36 @@ public class PlayerCloneEntity extends LivingEntity {
         return this.playerProfile;
     }
 
-    // Клон будет статичным и не будет атаковать или ходить сам
     @Override
-    public boolean isImmobile() { return true; }
+    public boolean isImmobile() {
+        return true;
+    }
 
     @Override
-    public Iterable<ItemStack> getArmorSlots() { return Collections.emptyList(); }
+    public Iterable<ItemStack> getArmorSlots() {
+        return Collections.emptyList();
+    }
 
     @Override
-    public ItemStack getItemBySlot(EquipmentSlot slot) { return ItemStack.EMPTY; }
+    public ItemStack getItemBySlot(EquipmentSlot slot) {
+        return ItemStack.EMPTY;
+    }
 
     @Override
     public void setItemSlot(EquipmentSlot slot, ItemStack stack) {}
 
     @Override
-    public net.minecraft.world.entity.HumanoidArm getMainArm() { return net.minecraft.world.entity.HumanoidArm.RIGHT; }
+    public net.minecraft.world.entity.HumanoidArm getMainArm() {
+        return net.minecraft.world.entity.HumanoidArm.RIGHT;
+    }
 
-    // Сохранение и чтение профиля игрока из NBT (компонентов)
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         if (tag.contains("CloneUUID") && tag.contains("CloneName")) {
             java.util.UUID uuid = tag.getUUID("CloneUUID");
             String name = tag.getString("CloneName");
-            this.playerProfile = new com.mojang.authlib.GameProfile(uuid, name);
+            this.playerProfile = new GameProfile(uuid, name);
         }
     }
 
@@ -60,5 +65,4 @@ public class PlayerCloneEntity extends LivingEntity {
             tag.putString("CloneName", this.playerProfile.getName());
         }
     }
-
 }
