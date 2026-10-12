@@ -27,8 +27,31 @@ sourceSets.main.resources {
 }
 
 repositories {
-    maven { name "KosmX's maven"; url 'https://kosmx.dev' }
+    // Главный репозиторий NeoForge (должен идти первым)
+    maven {
+        name = "NeoForge"
+        url = "https://neoforged.net"
+    }
+
+    // Репозиторий Modrinth (отсюда скачаются обе наши библиотеки)
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+    }
+
+    // Репозитории авторов (оставляем для совместимости)
+    maven {
+        name = "KosmX's maven"
+        url = "https://maven.kosmx.dev/"
+    }
+    maven {
+        name = "zigythebirdMods"
+        url = "https://maven.zigythebird.com/mods"
+    }
+
+    mavenCentral()
 }
+
 
 
 base {
@@ -117,9 +140,9 @@ configurations {
 }
 
 dependencies {
-    // Подключаем playerAnimator (фордж-версия отлично работает на NeoForge)
-    implementation "dev.kosmx.player-anim:player-animation-lib-forge:1.0.2-rc1+1.21"
-    // Примечание: версию (например, 1.0.2-rc1+1.21) можно уточнить на Modrinth/GitHub автора
+    // 1. Базовое ядро аниматора с Modrinth под NeoForge 1.21.1
+    implementation "maven.modrinth:playeranimator:2.0.4+1.21.1-forge"
+
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
     // compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"

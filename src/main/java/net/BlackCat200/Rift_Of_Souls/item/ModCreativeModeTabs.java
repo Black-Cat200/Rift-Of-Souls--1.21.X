@@ -41,7 +41,7 @@ public class ModCreativeModeTabs {
                     .title(Component.translatable("creativetab.riftofsouls.rift_of_souls"))
                     .displayItems((parameters, output) -> {
                         output.accept(ModBlocks.AZURITE_BLOCK);
-                        output.accept(ModItems.CLONE_SPAWN_ITEM.get());
+
 
 
                     }).build());

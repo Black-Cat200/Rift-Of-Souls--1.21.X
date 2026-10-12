@@ -1,7 +1,6 @@
 package net.BlackCat200.Rift_Of_Souls;
 
 import net.BlackCat200.Rift_Of_Souls.block.ModBlocks;
-import net.BlackCat200.Rift_Of_Souls.init.ModEntities;
 import net.BlackCat200.Rift_Of_Souls.item.ModCreativeModeTabs;
 import net.BlackCat200.Rift_Of_Souls.item.ModItems;
 import org.slf4j.Logger;
@@ -33,7 +32,6 @@ public class RiftOfSoulsMod {
 
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
-        ModEntities.register(modEventBus);
 
 
 
