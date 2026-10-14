@@ -1,6 +1,5 @@
 package net.BlackCat200.Rift_Of_Souls;
 
-import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
@@ -16,10 +15,10 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import com.mojang.blaze3d.platform.InputConstants;
 
-// Прямые официальные импорты playerAnimator из структуры изученного мода
 import dev.kosmx.playerAnim.api.layered.AnimationStack;
 import dev.kosmx.playerAnim.api.layered.KeyframeAnimationPlayer;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
+import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
 
@@ -31,11 +30,14 @@ public class ExampleModClient {
     private static float camYaw, camPitch;
     private static float playerFixedYaw, playerFixedPitch;
 
-    // Официальный слой анимации игрока (как в CustomPlayerAnimation)
-    private static ModifierLayer<KeyframeAnimationPlayer> animationLayer = new ModifierLayer<>();
+    // ПЕРЕМЕННЫЕ ВРЕМЕНИ И ПОЗИЦИИ ИГРОКА
+    private static float cutsceneTicks = 0;
+    private static final float MAX_DURATION_TICKS = 100; // Длительность катсцены (100 тиков = 5 секунд)
+    private static double basePlayerX, basePlayerY, basePlayerZ;
+
+    private static final ModifierLayer<KeyframeAnimationPlayer> animationLayer = new ModifierLayer<>();
     private static boolean isLayerAdded = false;
 
-    // Создаем кастомную кнопку запуска (Клавиша 'G' на клавиатуре)
     public static final KeyMapping ANIM_KEY = new KeyMapping(
             "key.rift_of_souls.play_anim",
             InputConstants.Type.KEYSYM,
@@ -44,10 +46,8 @@ public class ExampleModClient {
     );
 
     public ExampleModClient(ModContainer container) {
-        // Конструктор оставляем пустым
     }
 
-    // Регистрируем нашу кнопку в системе NeoForge
     @EventBusSubscriber(modid = RiftOfSoulsMod.MODID, value = Dist.CLIENT)
     public static class ModBusEvents {
         @SubscribeEvent
@@ -58,32 +58,41 @@ public class ExampleModClient {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        RiftOfSoulsMod.LOGGER.info("HELLO FROM CLEAN CLIENT SETUP WITH KEYBIND");
+        RiftOfSoulsMod.LOGGER.info("HELLO FROM CLIENT SETUP");
     }
 
-    public static void startCutscene(double x, double y, double z, float yaw, float pitch) {
+    public static void startCutscene(String animationName) {
         Minecraft mc = Minecraft.getInstance();
         var player = mc.player;
         if (player == null) return;
 
         isCutsceneActive = true;
-        camX = x; camY = y; camZ = z;
-        camYaw = yaw; camPitch = pitch;
+        cutsceneTicks = 0; // Сбрасываем таймер времени сцены в ноль
 
-        playerFixedYaw = mc.player.getYRot();
-        playerFixedPitch = mc.player.getXRot();
+        // Запоминаем точные координаты игрока в момент старта
+        basePlayerX = player.getX();
+        basePlayerY = player.getY();
+        basePlayerZ = player.getZ();
+
+        playerFixedYaw = player.getYRot();
+        playerFixedPitch = player.getXRot();
+
+        // Начальная позиция камеры (прямо в глазах игрока)
+        camX = basePlayerX;
+        camY = basePlayerY + 1.6;
+        camZ = basePlayerZ;
+        camYaw = playerFixedYaw;
+        camPitch = playerFixedPitch;
 
         mc.options.hideGui = true;
         mc.options.setCameraType(CameraType.THIRD_PERSON_BACK);
         mc.mouseHandler.grabMouse();
 
-        // =======ОФИЦИАЛЬНЫЙ ЗАПУСК АНИМАЦИИ ИЗ СТРУКТУРЫ МОДА=======
         var animation = PlayerAnimationRegistry.getAnimation(
-                ResourceLocation.fromNamespaceAndPath(RiftOfSoulsMod.MODID, "test")
+                ResourceLocation.fromNamespaceAndPath(RiftOfSoulsMod.MODID, animationName)
         );
 
         if (animation != null) {
-            // Подключаем слой к игроку ОДИН раз, чтобы не спамить в стек
             if (!isLayerAdded) {
                 AnimationStack stack = PlayerAnimationAccess.getPlayerAnimLayer(player);
                 if (stack != null) {
@@ -91,11 +100,7 @@ public class ExampleModClient {
                     isLayerAdded = true;
                 }
             }
-            // Запускаем плеер анимации в наш постоянный слой
             animationLayer.setAnimation(new KeyframeAnimationPlayer((KeyframeAnimation) animation));
-            RiftOfSoulsMod.LOGGER.info("Анимация test успешно запущена по нажатию клавиши!");
-        } else {
-            RiftOfSoulsMod.LOGGER.warn("Файл test.json не найден в assets/rift_of_souls/player_animations/");
         }
     }
 
@@ -105,23 +110,26 @@ public class ExampleModClient {
         mc.options.hideGui = false;
         mc.options.setCameraType(CameraType.FIRST_PERSON);
 
-        // Сбрасываем текущую анимацию в слое
         if (animationLayer != null) {
             animationLayer.setAnimation(null);
         }
     }
 
-    // Отслеживание нажатия клавиши в игре
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        // Если игрок нажал клавишу 'G' в мире и сцена еще не идет
         if (ANIM_KEY.consumeClick() && !isCutsceneActive && mc.screen == null) {
-            var p = mc.player;
-            // Активируем полет камеры и проигрывание JSON-движений
-            startCutscene(p.getX() - 3, p.getY() + 1.8, p.getZ() - 3, 45, 10);
+            startCutscene("battle_idle");
+        }
+
+        if (isCutsceneActive && !mc.isPaused()) {
+            mc.player.setDeltaMovement(0, mc.player.getDeltaMovement().y, 0);
+            mc.player.setYRot(playerFixedYaw);
+            mc.player.setXRot(playerFixedPitch);
+            mc.player.yRotO = playerFixedYaw;
+            mc.player.xRotO = playerFixedPitch;
         }
     }
 
@@ -143,20 +151,81 @@ public class ExampleModClient {
         }
     }
 
+    // =========================================================================
+    // БЛОК ТРУКТУРЫ РЕДАКТИРОВАНИЯ КАМЕРЫ КОДОМ
+    // =========================================================================
     @SubscribeEvent
     public static void onRenderTick(RenderLevelStageEvent event) {
         Minecraft mc = Minecraft.getInstance();
         if (isCutsceneActive && event.getStage() == RenderLevelStageEvent.Stage.AFTER_SKY) {
-            if (mc.level != null && !mc.isPaused()) {
-                camY += 0.005;
-                camYaw += 0.05f;
+            if (mc.level != null && !mc.isPaused() && mc.player != null) {
 
-                if (mc.player != null) {
-                    mc.player.setYRot(playerFixedYaw);
-                    mc.player.setXRot(playerFixedPitch);
-                    mc.player.yRotO = playerFixedYaw;
-                    mc.player.xRotO = playerFixedPitch;
-                    mc.player.setDeltaMovement(0, mc.player.getDeltaMovement().y, 0);
+                // Считаем время катсценыTHIRD_PERSON_BACK
+                cutsceneTicks += 0.5f;
+
+                // Если общее время (5 секунд) вышло — завершаем полет
+                if (cutsceneTicks >= MAX_DURATION_TICKS) {
+                    stopCutscene();
+                    return;
+                }
+
+                // ЖЕСТКАЯ ФИКСАЦИЯ МОДЕЛИ ИГРОКА (ИСПРАВЛЕНИЕ РАССИНХРОНА АНИМАЦИИ)
+                // Принудительно разворачиваем и тело, и голову, и шею персонажа строго
+                // по направлению стартового взгляда, чтобы JSON-анимация не утягивала его на Север!
+                mc.player.setYRot(playerFixedYaw);
+                mc.player.setXRot(playerFixedPitch);
+                mc.player.yRotO = playerFixedYaw;
+                mc.player.xRotO = playerFixedPitch;
+
+                // NeoForge-параметры рендеринга углов тела и головы со стороны:
+                mc.player.yBodyRot = playerFixedYaw;
+                mc.player.yBodyRotO = playerFixedYaw;
+                mc.player.yHeadRot = playerFixedYaw;
+                mc.player.yHeadRotO = playerFixedYaw;
+
+                // Обнуляем скорость ходьбы, чтобы игрок не сдвигался на WASD
+                mc.player.setDeltaMovement(0, mc.player.getDeltaMovement().y, 0);
+
+                // Переводим зафиксированный угол взгляда игрока в радианы для относительного расчета камеры
+                double angle = Math.toRadians(playerFixedYaw);
+
+                // --- АБСОЛЮТНО ОТНОСИТЕЛЬНЫЙ ТАЙМЛАЙН КАМЕРЫ ---
+
+                // СЦЕНА 1: Первые 2 секунды (0-40 тиков) — камера ПЛАВНО ОТЛЕТАЕТ НАЗАД ЗА СПИНУ
+                if (cutsceneTicks < 40) {
+                    double curDistanceBack = cutsceneTicks * 0.1;
+
+                    camX = basePlayerX;
+                    camZ = basePlayerZ;
+                    camY = basePlayerY + 1.6;
+
+                    camYaw = playerFixedYaw + 90;
+                    camPitch = 10f;
+                }
+
+                // СЦЕНА 2: От 2 до 4 секунд (40-80 тиков) — камера ЗАСТЫВАЕТ СЗАДИ И ПЛАВНО ЛЕТИТ ВВЕРХ
+                else if (cutsceneTicks >= 40 && cutsceneTicks < 80) {
+                    double curDistanceBack = 4.0;
+
+                    camX = basePlayerX -32;
+                    camZ = basePlayerZ;
+                    camY = basePlayerY;
+
+                    camYaw = playerFixedYaw;
+                    camPitch = 10f;
+                }
+
+                // СЦЕНА 3: Последняя 1 секунда (80-100 тиков) — камера ПЛАВНО СМЕЩАЕТСЯ К ЛЕВОМУ ПЛЕЧУ И ОБЛЕТАЕТ
+                else if (cutsceneTicks >= 80 && cutsceneTicks <= 100) {
+                    double curDistanceBack = 4.0;
+                    double curDistanceLeft = (cutsceneTicks - 80) * 0.1;
+
+                    camX = basePlayerX + (curDistanceBack * Math.sin(angle)) + (curDistanceLeft * Math.cos(angle));
+                    camZ = basePlayerZ - (curDistanceBack * Math.cos(angle)) + (curDistanceLeft * Math.sin(angle));
+                    camY = basePlayerY + 1.6 + 3.2;
+
+                    camYaw = playerFixedYaw - ((cutsceneTicks - 80) * 1.5f);
+                    camPitch = 10f;
                 }
 
                 if (mc.screen != null) {
@@ -165,4 +234,5 @@ public class ExampleModClient {
             }
         }
     }
+
 }
